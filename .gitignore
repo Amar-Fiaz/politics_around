@@ -1,0 +1,10 @@
+node_modules
+.env
+dist
+.next
+*.log
+__pycache__
+.venv
+frontend/.next
+backend/node_modules
+ai-service/__pycache__

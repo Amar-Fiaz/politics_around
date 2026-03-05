@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id              Int               @id @default(autoincrement())
+  name            String
+  email           String            @unique
+  password        String
+  role            Role              @default(USER)
+  createdAt       DateTime          @default(now())
+  surveyResponses SurveyResponse[]
+  reviews         Review[]
+}
+
+model City {
+  id         Int            @id @default(autoincrement())
+  name       String
+  population Int
+  province   String
+  constituencies Constituency[]
+  surveys    Survey[]
+}
+
+model Constituency {
+  id        Int       @id @default(autoincrement())
+  cityId    Int
+  city      City      @relation(fields: [cityId], references: [id])
+  name      String
+  number    Int
+  candidates Candidate[]
+  elections  Election[]
+}
+
+model PoliticalParty {
+  id           Int         @id @default(autoincrement())
+  name         String
+  abbreviation String
+  logoUrl      String?
+  candidates   Candidate[]
+}
+
+model Candidate {
+  id                Int            @id @default(autoincrement())
+  name              String
+  partyId           Int
+  party             PoliticalParty @relation(fields: [partyId], references: [id])
+  constituencyId    Int
+  constituency      Constituency   @relation(fields: [constituencyId], references: [id])
+  profilePicture    String?
+  biography         String
+  careerStartYear   Int
+  previousPositions String
+  votes             Vote[]
+  reviews           Review[]
+  projects          Project[]
+  promises          Promise[]
+}
+
+model Election {
+  id             Int          @id @default(autoincrement())
+  constituencyId Int
+  constituency   Constituency @relation(fields: [constituencyId], references: [id])
+  year           Int
+  type           String
+  totalVotes     Int
+  votes          Vote[]
+}
+
+model Vote {
+  id          Int       @id @default(autoincrement())
+  candidateId Int
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  electionId  Int
+  election    Election  @relation(fields: [electionId], references: [id])
+  voteCount   Int
+}
+
+model Survey {
+  id        Int              @id @default(autoincrement())
+  question  String
+  createdAt DateTime         @default(now())
+  cityId    Int
+  city      City             @relation(fields: [cityId], references: [id])
+  responses SurveyResponse[]
+}
+
+model SurveyResponse {
+  id       Int    @id @default(autoincrement())
+  surveyId Int
+  survey   Survey @relation(fields: [surveyId], references: [id])
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  rating   Int
+  comment  String
+}
+
+model Review {
+  id             Int              @id @default(autoincrement())
+  candidateId    Int
+  candidate      Candidate        @relation(fields: [candidateId], references: [id])
+  userId         Int
+  user           User             @relation(fields: [userId], references: [id])
+  content        String
+  rating         Int
+  sentimentScore Float?
+  createdAt      DateTime         @default(now())
+  sentiment      SentimentScore[]
+}
+
+model Project {
+  id             Int       @id @default(autoincrement())
+  candidateId    Int
+  candidate      Candidate @relation(fields: [candidateId], references: [id])
+  title          String
+  description    String
+  status         String
+  completionYear Int
+}
+
+model Promise {
+  id                Int       @id @default(autoincrement())
+  candidateId       Int
+  candidate         Candidate @relation(fields: [candidateId], references: [id])
+  promise           String
+  fulfillmentStatus String
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  source      String
+  publishedAt DateTime @default(now())
+}
+
+model SentimentScore {
+  id         Int      @id @default(autoincrement())
+  reviewId   Int
+  review     Review   @relation(fields: [reviewId], references: [id])
+  score      Float
+  analyzedAt DateTime @default(now())
+}
