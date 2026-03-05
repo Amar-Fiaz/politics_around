@@ -31,8 +31,12 @@ const Navbar = () => {
               {item.name}
             </Link>
           ))}
-          <Button variant="outline">Login</Button>
-          <Button>Register</Button>
+          <Link href="/login">
+            <Button variant="outline">Login</Button>
+          </Link>
+          <Link href="/login">
+            <Button>Register</Button>
+          </Link>
         </div>
       </div>
     </nav>
